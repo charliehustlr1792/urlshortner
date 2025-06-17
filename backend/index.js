@@ -1,8 +1,8 @@
 import express from "express";
-import {nanoid} from "nanoid";
 import dotenv from "dotenv";
 import connectDB from "./src/config/mongo.config.js";
-import shortUrlSchema from "./src/models/shorturl.model.js";
+import shortUrlRoute from "./src/routes/shorturl.route.js";
+import redirectFromShortUrl from "./src/controllers/shorturl.controller.js";
 
 dotenv.config();
 
@@ -10,17 +10,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post("/api/create",(req,res)=>{
-    const {url}=req.body;
-    const shortUrl = nanoid(7);
-    const newUrl = new shortUrlSchema({
-        fullurl: url,
-        shorturl: shortUrl,
-        clicks: 0,
-    });
-    newUrl.save();
-    res.send(shortUrl);
-})
+app.use("/api/create",shortUrlRoute);
+app.get('/:id', redirectFromShortUrl);
+
 
 app.listen(8000, () => {
     connectDB();
